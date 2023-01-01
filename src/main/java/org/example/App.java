@@ -24,7 +24,7 @@ public class App
     }
 
     public static void writeFile(String content) {
-        File file = new File("./res/files/bible.json");
+        File file = new File("~/res/files/bible.json");
         try {
             Files.writeString(Paths.get(file.toURI()), content, StandardOpenOption.CREATE);
         } catch (Exception e) {
