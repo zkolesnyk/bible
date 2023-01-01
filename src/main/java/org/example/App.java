@@ -2,25 +2,34 @@ package org.example;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
+import org.json.*;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 
 public class App
 {
     static List<Book> bookList = new ArrayList<>();
     public static void main(String[] args) {
+        parseBible();
+    }
 
+    public static void parseBible() {
         JSONObject jsonObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/books"));
         System.out.println(jsonObject);
         JSONArray books = jsonObject.getJSONArray("data");
         for (int i = 0; i < books.length(); i++) {
             JSONObject bookObject = books.getJSONObject(i);
-            bookList.add(new Book(bookObject));
+            Book book = new Book(bookObject);
+            System.out.println(i + ": " + book.getId());
+            bookList.add(book);
         }
 
         for (Book book : bookList) {
@@ -36,6 +45,7 @@ public class App
                 for (int i = 0; i < verses.length(); i++) {
                     Verse verse = new Verse(verses.getJSONObject(i));
                     JSONObject contentObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/verses/" + verse.getId()));
+//                    System.out.println("=> " + contentObject);
                     String content = contentObject.getJSONObject("data").getString("content");
                     System.out.println(content);
                     verse.setContent(content);
@@ -45,7 +55,6 @@ public class App
         }
 
         System.out.println(getBible().toString());
-
     }
 
     public static JSONArray getBible() {
