@@ -32,9 +32,9 @@ public class App
 
             for (Chapter chapter : book.getChapters()) {
                 JSONObject verseObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/chapters/" + chapter.getId() + "/verses"));
-                JSONArray verces = verseObject.getJSONArray("data");
-                for (int i = 0; i < verces.length(); i++) {
-                    Verse verse = new Verse(verces.getJSONObject(i));
+                JSONArray verses = verseObject.getJSONArray("data");
+                for (int i = 0; i < verses.length(); i++) {
+                    Verse verse = new Verse(verses.getJSONObject(i));
                     JSONObject contentObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/verses/" + verse.getId()));
                     String content = contentObject.getJSONObject("data").getString("content");
                     System.out.println(content);
@@ -55,7 +55,7 @@ public class App
             JSONArray chapters = new JSONArray();
             JSONObject bookObject = new JSONObject();
             bookObject.put("id", book.getId());
-            bookObject.put("bibleId", book.getBibleId());
+//            bookObject.put("bibleId", book.getBibleId());
             bookObject.put("nameLong", book.getNameLong());
             bookObject.put("name", book.getName());
             bookObject.put("abbreviation", book.getAbbreviation());
@@ -65,7 +65,7 @@ public class App
                 chapterObject.put("reference", chapter.getReference());
                 chapterObject.put("bookId", chapter.getBookId());
                 chapterObject.put("id", chapter.getId());
-                chapterObject.put("bibleId", chapter.getBibleId());
+//                chapterObject.put("bibleId", chapter.getBibleId());
                 chapterObject.put("number", chapter.getNumber());
                 for (Verse verse : chapter.getVerses()) {
                     JSONObject verseObject = new JSONObject();
@@ -74,7 +74,7 @@ public class App
                     verseObject.put("chapterId", verse.getChapterId());
                     verseObject.put("id", verse.getId());
                     verseObject.put("orgId", verse.getOrgId());
-                    verseObject.put("bibleId", verse.getBibleId());
+//                    verseObject.put("bibleId", verse.getBibleId());
                     verseObject.put("content", verse.getContent());
                     verses.put(verseObject);
                 }
