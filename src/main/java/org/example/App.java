@@ -57,13 +57,6 @@ public class App
                     Verse verse = new Verse(verses.getJSONObject(i));
                     JSONObject contentObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/verses/" + verse.getId()));
                     String content = contentObject.getJSONObject("data").getString("content");
-                    int start = content.lastIndexOf("</span>");
-                    content = content.substring(start + 7);
-                    int finish = content.indexOf("</p>");
-                    content = content.substring(0, finish);
-                    if (content.charAt(0) == ' ') {
-                        content = content.substring(1 , finish);
-                    } else content = content.substring(0 , finish);
                     System.out.println(verse.getReference() + ": " + content);
                     verse.setContent(content);
 
