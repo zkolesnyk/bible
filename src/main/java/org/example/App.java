@@ -78,8 +78,10 @@ public class App
                     verseObject.put("content", verse.getContent());
                     verses.put(verseObject);
                 }
+                chapterObject.put("verses", verses);
                 chapters.put(chapterObject);
             }
+            bookObject.put("chapters", chapters);
             data.put(bookObject);
         }
 
