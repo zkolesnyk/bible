@@ -36,7 +36,7 @@ public class App
         JSONObject jsonObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/books"));
         System.out.println(jsonObject);
         JSONArray books = jsonObject.getJSONArray("data");
-        for (int i = books.length() - 2; i < books.length() - 1; i++) {
+        for (int i = 0; i < books.length(); i++) {
             JSONObject bookObject = books.getJSONObject(i);
             Book book = new Book(bookObject);
             System.out.println(i + ": " + book.getId());
