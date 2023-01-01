@@ -2,16 +2,17 @@ package org.example;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.Format;
 import java.util.*;
-import org.json.*;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 
 public class App
@@ -19,13 +20,23 @@ public class App
     static List<Book> bookList = new ArrayList<>();
     public static void main(String[] args) {
         parseBible();
+        writeFile(createJsonBible().toString());
+    }
+
+    public static void writeFile(String content) {
+        File file = new File("./res/files/bible.json");
+        try {
+            Files.writeString(Paths.get(file.toURI()), content, StandardOpenOption.CREATE);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void parseBible() {
         JSONObject jsonObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/books"));
         System.out.println(jsonObject);
         JSONArray books = jsonObject.getJSONArray("data");
-        for (int i = 0; i < books.length(); i++) {
+        for (int i = books.length() - 2; i < books.length() - 1; i++) {
             JSONObject bookObject = books.getJSONObject(i);
             Book book = new Book(bookObject);
             System.out.println(i + ": " + book.getId());
@@ -53,11 +64,9 @@ public class App
                 }
             }
         }
-
-        System.out.println(getBible().toString());
     }
 
-    public static JSONArray getBible() {
+    public static JSONArray createJsonBible() {
         JSONArray data = new JSONArray();
 
         for (Book book : bookList) {
