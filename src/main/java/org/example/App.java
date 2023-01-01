@@ -11,7 +11,6 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.text.Format;
 import java.util.*;
 
 
@@ -36,7 +35,7 @@ public class App
         JSONObject jsonObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/books"));
 //        System.out.println(jsonObject);
         JSONArray books = jsonObject.getJSONArray("data");
-        for (int i = 0; i < books.length(); i++) {
+        for (int i = books.length() - 2; i < books.length() - 1; i++) {
             JSONObject bookObject = books.getJSONObject(i);
             Book book = new Book(bookObject);
             System.out.println(i + ": " + book.getId());
@@ -58,10 +57,17 @@ public class App
                     Verse verse = new Verse(verses.getJSONObject(i));
                     JSONObject contentObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/verses/" + verse.getId()));
                     String content = contentObject.getJSONObject("data").getString("content");
-                    int verseCount = contentObject.getJSONObject("data").getInt("verseCount");
+                    int start = content.lastIndexOf("</span>");
+                    content = content.substring(start + 7);
+                    int finish = content.indexOf("</p>");
+                    content = content.substring(0, finish);
+                    if (content.charAt(0) == ' ') {
+                        content = content.substring(1 , finish);
+                    } else content = content.substring(0 , finish);
                     System.out.println(verse.getReference() + ": " + content);
                     verse.setContent(content);
-                    verse.setVerseCount(verseCount);
+
+                    verse.setNumber(i + 1);
                     chapter.getVerses().add(verse);
                 }
             }
@@ -97,7 +103,7 @@ public class App
 //                    verseObject.put("orgId", verse.getOrgId());
 //                    verseObject.put("bibleId", verse.getBibleId());
                     verseObject.put("content", verse.getContent());
-                    verseObject.put("verseCount", verse.getVerseCount());
+                    verseObject.put("number", verse.getNumber());
                     verses.put(verseObject);
                 }
                 chapterObject.put("verses", verses);
