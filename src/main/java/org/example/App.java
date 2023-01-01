@@ -78,6 +78,7 @@ public class App
             bookObject.put("name", book.getName());
             bookObject.put("abbreviation", book.getAbbreviation());
             for (Chapter chapter : book.getChapters()) {
+                if (chapter.getNumber().equals("intro")) continue;
                 JSONArray verses = new JSONArray();
                 JSONObject chapterObject = new JSONObject();
                 chapterObject.put("reference", chapter.getReference());
