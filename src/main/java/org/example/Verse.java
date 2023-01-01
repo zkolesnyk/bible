@@ -58,6 +58,16 @@ public class Verse {
     String orgId;
     String bibleId;
 
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    int number;
+
     public String getContent() {
         return content;
     }
