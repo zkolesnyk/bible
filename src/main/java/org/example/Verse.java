@@ -58,6 +58,16 @@ public class Verse {
     String orgId;
     String bibleId;
 
+    public int getVerseCount() {
+        return verseCount;
+    }
+
+    public void setVerseCount(int verseCount) {
+        this.verseCount = verseCount;
+    }
+
+    int verseCount;
+
     public String getContent() {
         return content;
     }

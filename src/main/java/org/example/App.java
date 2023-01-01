@@ -34,7 +34,7 @@ public class App
 
     public static void parseBible() {
         JSONObject jsonObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/books"));
-        System.out.println(jsonObject);
+//        System.out.println(jsonObject);
         JSONArray books = jsonObject.getJSONArray("data");
         for (int i = 0; i < books.length(); i++) {
             JSONObject bookObject = books.getJSONObject(i);
@@ -44,6 +44,7 @@ public class App
         }
 
         for (Book book : bookList) {
+            System.out.println("Обрабатываем книгу: " + book.getId());
             JSONObject chapterObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/books/" + book.getId() + "/chapters"));
             JSONArray chapters = chapterObject.getJSONArray("data");
             for (int i = 0; i < chapters.length(); i++) {
@@ -56,10 +57,11 @@ public class App
                 for (int i = 0; i < verses.length(); i++) {
                     Verse verse = new Verse(verses.getJSONObject(i));
                     JSONObject contentObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/verses/" + verse.getId()));
-//                    System.out.println("=> " + contentObject);
                     String content = contentObject.getJSONObject("data").getString("content");
-                    System.out.println(content);
+                    int verseCount = contentObject.getJSONObject("data").getInt("verseCount");
+                    System.out.println(verse.getReference() + ": " + content);
                     verse.setContent(content);
+                    verse.setVerseCount(verseCount);
                     chapter.getVerses().add(verse);
                 }
             }
@@ -74,7 +76,7 @@ public class App
             JSONObject bookObject = new JSONObject();
             bookObject.put("id", book.getId());
 //            bookObject.put("bibleId", book.getBibleId());
-            bookObject.put("nameLong", book.getNameLong());
+//            bookObject.put("nameLong", book.getNameLong());
             bookObject.put("name", book.getName());
             bookObject.put("abbreviation", book.getAbbreviation());
             for (Chapter chapter : book.getChapters()) {
@@ -82,19 +84,20 @@ public class App
                 JSONArray verses = new JSONArray();
                 JSONObject chapterObject = new JSONObject();
                 chapterObject.put("reference", chapter.getReference());
-                chapterObject.put("bookId", chapter.getBookId());
+//                chapterObject.put("bookId", chapter.getBookId());
                 chapterObject.put("id", chapter.getId());
 //                chapterObject.put("bibleId", chapter.getBibleId());
                 chapterObject.put("number", chapter.getNumber());
                 for (Verse verse : chapter.getVerses()) {
                     JSONObject verseObject = new JSONObject();
                     verseObject.put("reference", verse.getReference());
-                    verseObject.put("bookId", verse.getBookId());
-                    verseObject.put("chapterId", verse.getChapterId());
+//                    verseObject.put("bookId", verse.getBookId());
+//                    verseObject.put("chapterId", verse.getChapterId());
                     verseObject.put("id", verse.getId());
-                    verseObject.put("orgId", verse.getOrgId());
+//                    verseObject.put("orgId", verse.getOrgId());
 //                    verseObject.put("bibleId", verse.getBibleId());
                     verseObject.put("content", verse.getContent());
+                    verseObject.put("verseCount", verse.getVerseCount());
                     verses.put(verseObject);
                 }
                 chapterObject.put("verses", verses);
@@ -111,8 +114,10 @@ public class App
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .GET()
                 .header("content-type", "json")
-                .header("include-verse-spans", "true")
-                .header("include-notes", "true")
+                .header("include-verse-spans", "false")
+                .header("include-verse-numbers", "false")
+                .header("include-notes", "false")
+                .header("include-titles", "false")
                 .header("api-key", "GB1Q1dMAKtlkzggBkGecmZE")
                 .uri(URI.create(link))
                 .build();
