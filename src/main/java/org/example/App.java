@@ -132,7 +132,7 @@ public class App
             }
             onlyBooks.put(bookObject);
             bookObject.put("chapters", chapters);
-            appendFile(bookObject.toString(), "/Users/slavebb/IdeaProjects/bible/res/files/appendedBooksWithIncludes.json");
+            appendFile(bookObject.toString() + ",", "/Users/slavebb/IdeaProjects/bible/res/files/appendedBooksWithIncludes.json");
             data.put(bookObject);
         }
 
