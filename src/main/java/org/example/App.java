@@ -87,13 +87,42 @@ public class App
                     chapter.getVerses().add(verse);
                 }
             }
+
+            appendFile(getBookObject(book).toString() + ",", "/Users/slavebb/IdeaProjects/bible/res/files/appendedBooksWithIncludes.json");
         }
     }
 
+    public static JSONObject getBookObject(Book book) {
+        JSONArray chapters = new JSONArray();
+        JSONObject bookObject = new JSONObject();
+        bookObject.put("id", book.getId());
+        bookObject.put("name", book.getName());
+        bookObject.put("abbreviation", book.getAbbreviation());
+        for (Chapter chapter : book.getChapters()) {
+            if (chapter.getNumber().equals("intro")) continue;
+            JSONArray verses = new JSONArray();
+            JSONObject chapterObject = new JSONObject();
+            chapterObject.put("reference", chapter.getReference());
+            chapterObject.put("id", chapter.getId());
+            chapterObject.put("number", chapter.getNumber());
+            for (Verse verse : chapter.getVerses()) {
+                JSONObject verseObject = new JSONObject();
+                verseObject.put("reference", verse.getReference());
+                verseObject.put("id", verse.getId());
+                verseObject.put("content", verse.getContent());
+                verseObject.put("number", verse.getNumber());
+                verses.put(verseObject);
+            }
+            chapterObject.put("verses", verses);
+            chapters.put(chapterObject);
+        }
+        bookObject.put("chapters", chapters);
+        return bookObject;
+    }
+
+
     public static JSONArray createJsonBible() {
         JSONArray data = new JSONArray();
-        JSONArray onlyChapters = new JSONArray();
-        JSONArray onlyBooks = new JSONArray();
         JSONArray onlyVerses = new JSONArray();
 
         for (Book book : bookList) {
@@ -126,18 +155,12 @@ public class App
                     onlyVerses.put(verseObject);
                     verses.put(verseObject);
                 }
-                onlyChapters.put(chapterObject);
                 chapterObject.put("verses", verses);
                 chapters.put(chapterObject);
             }
-            onlyBooks.put(bookObject);
             bookObject.put("chapters", chapters);
-            appendFile(bookObject.toString() + ",", "/Users/slavebb/IdeaProjects/bible/res/files/appendedBooksWithIncludes.json");
             data.put(bookObject);
         }
-
-        writeFile(onlyBooks.toString(), "/Users/slavebb/IdeaProjects/bible/res/files/books.json");
-        writeFile(onlyChapters.toString(), "/Users/slavebb/IdeaProjects/bible/res/files/chapters.json");
         writeFile(onlyVerses.toString(), "/Users/slavebb/IdeaProjects/bible/res/files/verses.json");
 
         return data;
