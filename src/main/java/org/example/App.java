@@ -36,6 +36,15 @@ public class App
         }
     }
 
+    public static void appendFile(String content, String pathName) {
+        File file = new File(pathName);
+        try {
+            Files.writeString(Paths.get(file.toURI()), content, StandardOpenOption.APPEND);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void parseBible() {
         JSONObject jsonObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/books"));
 //        System.out.println(jsonObject);
@@ -123,6 +132,7 @@ public class App
             }
             onlyBooks.put(bookObject);
             bookObject.put("chapters", chapters);
+            appendFile(bookObject.toString(), "/Users/slavebb/IdeaProjects/bible/res/files/appendedBooksWithIncludes.json");
             data.put(bookObject);
         }
 
