@@ -19,11 +19,16 @@ public class App
     static List<Book> bookList = new ArrayList<>();
     public static void main(String[] args) {
         parseBible();
-        writeFile(createJsonBible().toString());
+        writeFile(createJsonBible().toString(), "/Users/slavebb/IdeaProjects/bible/res/files/bible.json");
+//        System.out.println(getVerse("EZK.23.49"));
     }
 
-    public static void writeFile(String content) {
-        File file = new File("/Users/slavebb/IdeaProjects/bible/res/files/bible.json");
+    public static JSONObject getVerse(String verseId) {
+        return new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/verses/" + verseId));
+    }
+
+    public static void writeFile(String content, String pathName) {
+        File file = new File(pathName);
         try {
             Files.writeString(Paths.get(file.toURI()), content, StandardOpenOption.CREATE);
         } catch (Exception e) {
@@ -35,7 +40,7 @@ public class App
         JSONObject jsonObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/books"));
 //        System.out.println(jsonObject);
         JSONArray books = jsonObject.getJSONArray("data");
-        for (int i = 0; i < books.length(); i++) {
+        for (int i = books.length() - 2; i < books.length() - 1; i++) {
             JSONObject bookObject = books.getJSONObject(i);
             Book book = new Book(bookObject);
             System.out.println(i + ": " + book.getId());
@@ -56,17 +61,19 @@ public class App
                 for (int i = 0; i < verses.length(); i++) {
                     Verse verse = new Verse(verses.getJSONObject(i));
                     JSONObject contentObject = new JSONObject(getConnector("https://v2.api.bible/bibles/723f623685375bf8-01/verses/" + verse.getId()));
-                    String content = contentObject.getJSONObject("data").getString("content");
-                    int start = content.lastIndexOf("</span>");
-                    content = content.substring(start + 7);
-                    int finish = content.indexOf("</p>");
-                    content = content.substring(0, finish);
-                    if (content.charAt(0) == ' ') {
-                        content = content.substring(1 , finish);
-                    } else content = content.substring(0 , finish);
-                    System.out.println(verse.getReference() + ": " + content);
-                    verse.setContent(content);
+                    if (!contentObject.isNull("data")) {
+                        String content = contentObject.getJSONObject("data").getString("content");
+                        int start = content.lastIndexOf("</span>");
+                        content = content.substring(start + 7);
+                        int finish = content.indexOf("</p>");
+                        content = content.substring(0, finish);
+                        if (content.charAt(0) == ' ') {
+                            content = content.substring(1 , finish);
+                        } else content = content.substring(0 , finish);
 
+                        System.out.println(verse.getReference() + ": " + content);
+                        verse.setContent(content);
+                    } else verse.setContent("empty");
                     verse.setNumber(i + 1);
                     chapter.getVerses().add(verse);
                 }
@@ -75,6 +82,58 @@ public class App
     }
 
     public static JSONArray createJsonBible() {
+        JSONArray data = new JSONArray();
+        JSONArray onlyChapters = new JSONArray();
+        JSONArray onlyBooks = new JSONArray();
+        JSONArray onlyVerses = new JSONArray();
+
+        for (Book book : bookList) {
+            JSONArray chapters = new JSONArray();
+            JSONObject bookObject = new JSONObject();
+            bookObject.put("id", book.getId());
+//            bookObject.put("bibleId", book.getBibleId());
+//            bookObject.put("nameLong", book.getNameLong());
+            bookObject.put("name", book.getName());
+            bookObject.put("abbreviation", book.getAbbreviation());
+            for (Chapter chapter : book.getChapters()) {
+                if (chapter.getNumber().equals("intro")) continue;
+                JSONArray verses = new JSONArray();
+                JSONObject chapterObject = new JSONObject();
+                chapterObject.put("reference", chapter.getReference());
+//                chapterObject.put("bookId", chapter.getBookId());
+                chapterObject.put("id", chapter.getId());
+//                chapterObject.put("bibleId", chapter.getBibleId());
+                chapterObject.put("number", chapter.getNumber());
+                for (Verse verse : chapter.getVerses()) {
+                    JSONObject verseObject = new JSONObject();
+                    verseObject.put("reference", verse.getReference());
+//                    verseObject.put("bookId", verse.getBookId());
+//                    verseObject.put("chapterId", verse.getChapterId());
+                    verseObject.put("id", verse.getId());
+//                    verseObject.put("orgId", verse.getOrgId());
+//                    verseObject.put("bibleId", verse.getBibleId());
+                    verseObject.put("content", verse.getContent());
+                    verseObject.put("number", verse.getNumber());
+                    onlyVerses.put(verseObject);
+                    verses.put(verseObject);
+                }
+                onlyChapters.put(chapterObject);
+                chapterObject.put("verses", verses);
+                chapters.put(chapterObject);
+            }
+            onlyBooks.put(bookObject);
+            bookObject.put("chapters", chapters);
+            data.put(bookObject);
+        }
+
+        writeFile(onlyBooks.toString(), "/Users/slavebb/IdeaProjects/bible/res/files/books.json");
+        writeFile(onlyChapters.toString(), "/Users/slavebb/IdeaProjects/bible/res/files/chapters.json");
+        writeFile(onlyVerses.toString(), "/Users/slavebb/IdeaProjects/bible/res/files/verses.json");
+
+        return data;
+    }
+
+    public static JSONArray writeBooks() {
         JSONArray data = new JSONArray();
 
         for (Book book : bookList) {
